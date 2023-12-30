@@ -39,7 +39,7 @@ func main() {
 	gothic.Store = store
 
 	goth.UseProviders(
-		google.New(os.Getenv("GOOGLE_OAUTH_KEY"), os.Getenv("GOOGLE_OAUTH_SECRET"), "http://localhost:8080/auth/callback?provider=google"),
+		google.New(os.Getenv("GOOGLE_OAUTH_KEY"), os.Getenv("GOOGLE_OAUTH_SECRET"), fmt.Sprintf("%s/auth/callback?provider=google", os.Getenv("CURRENT_URL"))),
 	)
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
