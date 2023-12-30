@@ -1,13 +1,17 @@
 package page
 
 import "github.com/mrSun421/birthday-reminder/shared"
+import "github.com/markbates/goth"
 
 templ Index() {
 @shared.Layout() {
 <nav class="navbar has-shadow is-white">
 	<div class="navbar-menu is-active">
 		<div class="navbar-end">
-			<button type="button" class="button is-primary">Log In With Google</button>
+			<button type="button" class="button is-primary" hx-get="/auth?provider=google">
+				Log In With
+				Google
+			</button>
 		</div>
 	</div>
 </nav>
@@ -26,5 +30,27 @@ templ Index() {
 		Everyone deserves cake.
 	</div>
 </div>
+}
+}
+
+templ UserInfo(user goth.User) {
+@shared.Layout() {
+<nav class="navbar has-shadow is-white"></nav>
+<div class="navbar-menu is-active">
+	<div class="navbar-end">
+		<button type="button" class="button is-warning" hx-get="/logout?provider=google">
+			Log Out
+		</button>
+	</div>
+</div>
+<p>Name: { user.Name }</p>
+<p>Email: { user.Email }</p>
+<p>Nickname: { user.NickName }</p>
+<p>Avatar: <img src={ user.AvatarURL } alt="User's Profile Picture" /></p>
+<p>Description: { user.Description }</p>
+<p>UserID: { user.UserID }</p>
+<p>AccessToken: { user.AccessToken }</p>
+<p>ExpiresAt: { user.ExpiresAt.String() }</p>
+<p>RefreshToken: { user.RefreshToken }</p>
 }
 }
