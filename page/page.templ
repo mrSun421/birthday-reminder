@@ -8,10 +8,7 @@ templ Index() {
 <nav class="navbar has-shadow is-white">
 	<div class="navbar-menu is-active">
 		<div class="navbar-end">
-			<button type="button" class="button is-primary" hx-get="/auth?provider=google">
-				Log In With
-				Google
-			</button>
+			<a href="/auth?provider=google" class="button is-primary">Log in with Google</a>
 		</div>
 	</div>
 </nav>
@@ -38,9 +35,7 @@ templ UserInfo(user goth.User) {
 <nav class="navbar has-shadow is-white"></nav>
 <div class="navbar-menu is-active">
 	<div class="navbar-end">
-		<button type="button" class="button is-warning" hx-get="/logout?provider=google">
-			Log Out
-		</button>
+		<a href="/logout?provider=google" class="button is-warning">Log Out</a>
 	</div>
 </div>
 <p>Name: { user.Name }</p>

@@ -34,7 +34,7 @@ func main() {
 	store.MaxAge(int(time.Hour * 24 * 30))
 	store.Options.Path = "/"
 	store.Options.HttpOnly = true
-	store.Options.Secure = false
+	store.Options.Secure = true
 
 	gothic.Store = store
 
@@ -46,51 +46,44 @@ func main() {
 		log.Printf("Loading Index Page...\n")
 		err = page.Index().Render(r.Context(), w)
 		if err != nil {
-			log.Printf("%v\n", err)
-			w.WriteHeader(http.StatusNotFound)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 	})
 
 	http.HandleFunc("/auth/callback", func(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Beginning OAuth Callback...\n")
-		provider := r.URL.Query().Get("provider")
-		r = r.WithContext(context.WithValue(context.Background(), "provider", provider))
 
 		user, err := gothic.CompleteUserAuth(w, r)
 		if err != nil {
 			log.Printf("response: %v, error: %v\n", w, err)
 			return
 		}
-		err = page.UserInfo(user).Render(r.Context(), w)
+		session, _ := store.Get(r, "current-session")
+		session.Values["user"] = user
+		err = sessions.Save(r, w)
 		if err != nil {
-			log.Printf("%v\n", err)
-			w.WriteHeader(http.StatusNotFound)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		log.Printf("Sucessfully rendered new page")
+		http.Redirect(w, r, "/userPage", http.StatusSeeOther)
 
 	})
 
 	http.HandleFunc("/logout", func(w http.ResponseWriter, r *http.Request) {
-		log.Printf("Starting logout from OAuth...")
-		provider := r.URL.Query().Get("provider")
-		r = r.WithContext(context.WithValue(context.Background(), "provider", provider))
+		log.Printf("Starting logout from OAuth...\n")
 
 		err = gothic.Logout(w, r)
 		if err != nil {
 			log.Printf("error: %v\n", err)
 			return
 		}
-		w.Header().Set("Location", "/")
-		w.WriteHeader(http.StatusTemporaryRedirect)
-		log.Printf("Sucessfully redirected to Index page")
+		log.Printf("attempting Redirect to Index page...\n")
+		http.Redirect(w, r, "/", http.StatusSeeOther)
 	})
 
 	http.HandleFunc("/auth", func(w http.ResponseWriter, r *http.Request) {
 		log.Printf("starting stored login...")
-		provider := r.URL.Query().Get("provider")
-		r = r.WithContext(context.WithValue(context.Background(), "provider", provider))
 		if gothUser, err := gothic.CompleteUserAuth(w, r); err == nil {
 			log.Printf("Local store found")
 			err = page.UserInfo(gothUser).Render(r.Context(), w)
@@ -104,6 +97,26 @@ func main() {
 			gothic.BeginAuthHandler(w, r)
 		}
 
+	})
+	http.HandleFunc("/userPage", func(w http.ResponseWriter, r *http.Request) {
+		log.Printf("Loading userPage...\n")
+		session, err := store.Get(r, "current-session")
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		user := session.Values["user"].(goth.User)
+		if user.IDToken == "" {
+			http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+			return
+		}
+
+		err = page.UserInfo(user).Render(r.Context(), w)
+		if err != nil {
+			log.Printf("%v\n", err)
+			w.WriteHeader(http.StatusNotFound)
+			return
+		}
 	})
 
 	go func() {
