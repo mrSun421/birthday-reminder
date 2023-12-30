@@ -1,7 +1,7 @@
 package page
 
 import "github.com/mrSun421/birthday-reminder/shared"
-import "github.com/markbates/goth"
+import "fmt"
 
 templ Index() {
 @shared.Layout() {
@@ -30,7 +30,7 @@ templ Index() {
 }
 }
 
-templ UserInfo(user goth.User) {
+templ UserPage(birthdays []BirthdayItem) {
 @shared.Layout() {
 <nav class="navbar has-shadow is-white"></nav>
 <div class="navbar-menu is-active">
@@ -38,14 +38,50 @@ templ UserInfo(user goth.User) {
 		<a href="/logout?provider=google" class="button is-warning">Log Out</a>
 	</div>
 </div>
-<p>Name: { user.Name }</p>
-<p>Email: { user.Email }</p>
-<p>Nickname: { user.NickName }</p>
-<p>Avatar: <img src={ user.AvatarURL } alt="User's Profile Picture" /></p>
-<p>Description: { user.Description }</p>
-<p>UserID: { user.UserID }</p>
-<p>AccessToken: { user.AccessToken }</p>
-<p>ExpiresAt: { user.ExpiresAt.String() }</p>
-<p>RefreshToken: { user.RefreshToken }</p>
+<div class="columns is-multiline">
+	for _, birthday := range birthdays {
+	@BirthdayInfo(birthday)
+	}
+</div>
 }
+}
+
+templ BirthdayInfo(birthday BirthdayItem) {
+<div class="column" hx-swap="innerHTML" hx-target="this">
+	<div class="columns is-multiline">
+		<div class="column is-half">
+			{ birthday.FirstName }
+		</div>
+		<div class="column is-half">
+			{ birthday.LastName }
+		</div>
+		<div class="column">
+			{ birthday.Birthday.Format("2006-01-02") }
+		</div>
+	</div>
+	<button type="button" class="button is-primary" hx-get={ fmt.Sprintf("/userPage/birthdayItem/edit/%d",
+		birthday.Id), }>Edit</button>
+	<button type="button" class="button is-danger" hx-confirm="Are you sure?" hx-delete={
+		fmt.Sprintf("userPage/birthdayItem/%d", birthday.Id) }>Delete</button>
+</div>
+}
+
+templ BirthdayForm(birthday BirthdayItem) {
+<form hx-put={ fmt.Sprintf("/userPage/birthdayItem/%d", birthday.Id) } hx-swap="outerHTML">
+	<input type="text" name="firstName" value={ birthday.FirstName } />
+	<input type="text" name="lastName" value={ birthday.LastName } />
+	<input type="date" name="birthday" value={ birthday.Birthday.Format("2006-01-02") } />
+	<button type="button" button="button is-success" hx-put={ fmt.Sprintf("/userPage/birthdayItem/%d", birthday.Id),
+		}>Save</button>
+	<button class="button is-info" hx-get={ fmt.Sprintf("/userPage/birthdayItem/%d", birthday.Id) }>Cancel</button>
+</form>
+}
+
+templ NewBirthdayButton() {
+<div class="column has-text-centered" hx-swap="outerHTML">
+	<button type="button" class="button is-primary" hx-get="/userPage/newBirthdayItem/form">Add Birthday</button>
+</div>
+}
+
+templ NewBirthdayForm() {
 }
