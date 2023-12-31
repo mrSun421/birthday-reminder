@@ -48,10 +48,9 @@ templ UserPage(birthdays []BirthdayItem) {
 
 templ BirthdayInfo(birthday BirthdayItem) {
 <div class="column" hx-swap="innerHTML" hx-target="this">
-	<label class="label">First Name</label>
-	<p>{ birthday.FirstName } </p>
-	<label class="label">Last Name</label>
-	<p>{ birthday.LastName } </p>
+	<label class="label">Name</label>
+	<p>{ fmt.Sprintf("%s %s", birthday.FirstName, birthday.LastName) } </p>
+	<p></p>
 	<label class="label">Birthday</label>
 	<p>{ birthday.Birthday.Format("2006-01-02") } </p>
 	<button type="button" class="button is-primary" hx-get={ fmt.Sprintf("/userPage/birthdayItem/edit/%d",
@@ -62,7 +61,8 @@ templ BirthdayInfo(birthday BirthdayItem) {
 }
 
 templ BirthdayForm(birthday BirthdayItem) {
-<form hx-put={ fmt.Sprintf("/userPage/birthdayItem/%d", birthday.Id) } hx-swap="outerHTML">
+<form hx-put={ fmt.Sprintf("/userPage/birthdayItem/%d", birthday.Id) } hx-swap="outerHTML"
+	hx-trigger="keyup[keyCode==13]">
 	<div class="field">
 		<label class="label">First Name</label>
 		<div class="control">
