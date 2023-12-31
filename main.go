@@ -50,6 +50,8 @@ func main() {
 	http.HandleFunc("/userPage", userPage)
 	http.HandleFunc("/userPage/birthdayItem/edit/", editBirthday)
 	http.HandleFunc("/userPage/birthdayItem/", requestBirthdayAction)
+	http.HandleFunc("/userPage/newBirthdayItem/form", newBirthdayForm)
+	http.HandleFunc("/userPage/newBirthdayItem/attemptAdd", attemptAddNewBirthday)
 
 	go func() {
 		log.Printf("Starting server at port %s...\n", port)

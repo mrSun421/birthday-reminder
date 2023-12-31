@@ -223,9 +223,75 @@ func requestBirthdayAction(w http.ResponseWriter, r *http.Request) {
 		}
 
 	case http.MethodDelete:
-
+		_, err := conn.Exec(context.Background(), "DELETE FROM birthdays WHERE id = $1 AND userid = $2", id, user.UserID)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		log.Printf("Birthday Successfully deleted\n")
 	default:
 		w.WriteHeader(http.StatusNotFound)
 	}
+
+}
+
+func newBirthdayForm(w http.ResponseWriter, r *http.Request) {
+	log.Printf("Getting new birthday form\n")
+
+	err = page.NewBirthdayForm().Render(r.Context(), w)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	log.Printf("Succesfully obtained form for new birthday\n")
+}
+
+func attemptAddNewBirthday(w http.ResponseWriter, r *http.Request) {
+	log.Printf("Attempting to add new birthdayItem\n")
+
+	if r.Method == http.MethodPost {
+		session, err := store.Get(r, "current-session")
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		user := session.Values["user"].(goth.User)
+		if user.IDToken == "" {
+			http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+			return
+		}
+		err = r.ParseForm()
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		firstName := r.FormValue("firstName")
+		lastName := r.FormValue("lastName")
+		birthday := r.FormValue("birthday")
+		var newId int
+		err = conn.QueryRow(context.Background(), "INSERT INTO birthdays(userid, personfirstname, personlastname, birthday) VALUES($1, $2, $3, $4) RETURNING id", user.UserID, firstName, lastName, birthday).Scan(&newId)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		parsedBirthday, err := time.Parse("2006-01-02", birthday)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		err = page.BirthdayInfo(page.BirthdayItem{UserId: user.UserID, FirstName: firstName, LastName: lastName, Birthday: parsedBirthday, Id: newId}).Render(r.Context(), w)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		log.Printf("New birthday successfully added\n")
+	}
+	log.Printf("Replacing formw with button\n")
+	err = page.NewBirthdayButton().Render(r.Context(), w)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	log.Printf("Form Replaced")
 
 }

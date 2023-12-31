@@ -38,16 +38,17 @@ templ UserPage(birthdays []BirthdayItem) {
 		<a href="/logout?provider=google" class="button is-warning">Log Out</a>
 	</div>
 </div>
-<div class="columns is-multiline is-centered">
+<div class="columns is-multiline is-centered is-vcentered">
 	for _, birthday := range birthdays {
 	@BirthdayInfo(birthday)
 	}
+	@NewBirthdayButton()
 </div>
 }
 }
 
 templ BirthdayInfo(birthday BirthdayItem) {
-<div class="column" hx-swap="innerHTML" hx-target="this">
+<div class="column has-text-centered" hx-swap="outerHTML" hx-target="this">
 	<label class="label">Name</label>
 	<p>{ fmt.Sprintf("%s %s", birthday.FirstName, birthday.LastName) } </p>
 	<p></p>
@@ -61,40 +62,69 @@ templ BirthdayInfo(birthday BirthdayItem) {
 }
 
 templ BirthdayForm(birthday BirthdayItem) {
-<form hx-put={ fmt.Sprintf("/userPage/birthdayItem/%d", birthday.Id) } hx-swap="outerHTML"
-	hx-trigger="keyup[keyCode==13]">
-	<div class="field">
-		<label class="label">First Name</label>
-		<div class="control">
-			<input type="text" name="firstName" value={ birthday.FirstName } />
+<div class="column has-text-centered" hx-swap="outerHTML" hx-target="this">
+	<form hx-put={ fmt.Sprintf("/userPage/birthdayItem/%d", birthday.Id) } hx-trigger="keyup[keyCode==13]">
+		<div class="field">
+			<label class="label">First Name</label>
+			<div class="control">
+				<input type="text" name="firstName" value={ birthday.FirstName } />
+			</div>
 		</div>
-	</div>
-	<div class="field">
-		<label class="label">Last Name</label>
-		<div class="control">
-			<input type="text" name="lastName" value={ birthday.LastName } />
+		<div class="field">
+			<label class="label">Last Name</label>
+			<div class="control">
+				<input type="text" name="lastName" value={ birthday.LastName } />
+			</div>
 		</div>
-	</div>
-	<div class="field">
-		<label class="label">Birthday</label>
-		<div class="control">
-			<input type="date" name="birthday" value={ birthday.Birthday.Format("2006-01-02") } />
+		<div class="field">
+			<label class="label">Birthday</label>
+			<div class="control">
+				<input type="date" name="birthday" value={ birthday.Birthday.Format("2006-01-02") } />
+			</div>
 		</div>
-	</div>
-	<div class="field is-grouped is-grouped-left">
-		<button type="button" class="button is-success" hx-put={ fmt.Sprintf("/userPage/birthdayItem/%d",
-			birthday.Id), }>Save</button>
-		<button type="button" class="button is-info" hx-get={ fmt.Sprintf("/userPage/birthdayItem/%d",
-			birthday.Id), }>Cancel</button>
-	</div>
-</form>
+		<div class="field is-grouped is-grouped-centered">
+			<button type="button" class="button is-success" hx-put={
+				fmt.Sprintf("/userPage/birthdayItem/%d", birthday.Id), }>Save</button>
+			<button type="button" class="button is-info" hx-get={ fmt.Sprintf("/userPage/birthdayItem/%d",
+				birthday.Id), }>Cancel</button>
+		</div>
+	</form>
+</div>
 }
 
 templ NewBirthdayButton() {
-<div class="column has-text-centered" hx-swap="outerHTML">
+<div class="column has-text-centered" hx-swap="outerHTML" hx-target="this">
 	<button type="button" class="button is-primary" hx-get="/userPage/newBirthdayItem/form">Add Birthday</button>
 </div>
 }
 
 templ NewBirthdayForm() {
+<div class="column has-text-centered" hx-swap="outerHTML" hx-target="this">
+	<form hx-post="/userPage/newBirthdayItem/attemptAdd" hx-trigger="keyup[keyCode==13]">
+		<div class="field">
+			<label class="label">First Name</label>
+			<div class="control">
+				<input type="text" name="firstName" value="" />
+			</div>
+		</div>
+		<div class="field">
+			<label class="label">Last Name</label>
+			<div class="control">
+				<input type="text" name="lastName" value="" />
+			</div>
+		</div>
+		<div class="field">
+			<label class="label">Birthday</label>
+			<div class="control">
+				<input type="date" name="birthday" value="" />
+			</div>
+		</div>
+		<div class="field is-grouped is-grouped-centered">
+			<button type="button" class="button is-success"
+				hx-post="/userPage/newBirthdayItem/attemptAdd">Save</button>
+			<button type="button" class="button is-info"
+				hx-get="/userPage/newBirthdayItem/attemptAdd">Cancel</button>
+		</div>
+	</form>
+</div>
 }
