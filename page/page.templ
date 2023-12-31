@@ -32,12 +32,13 @@ templ Index() {
 
 templ UserPage(birthdays []BirthdayItem) {
 @shared.Layout() {
-<nav class="navbar has-shadow is-white"></nav>
-<div class="navbar-menu is-active">
-	<div class="navbar-end">
-		<a href="/logout?provider=google" class="button is-warning">Log Out</a>
+<nav class="navbar has-shadow is-white">
+	<div class="navbar-menu is-active">
+		<div class="navbar-end">
+			<a href="/logout?provider=google" class="button is-warning">Log Out</a>
+		</div>
 	</div>
-</div>
+</nav>
 <div class="columns is-multiline is-centered is-vcentered">
 	for _, birthday := range birthdays {
 	@BirthdayInfo(birthday)
