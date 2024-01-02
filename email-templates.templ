@@ -1,0 +1,44 @@
+package main
+
+templ oneWeek(names []string) {
+<h1>Did you get anything for their birthdays?</h1>
+<p>
+	If you didn't, that's ok! This email is here to remind you of that! You have a week, so make sure to get a
+	present,
+	or just do something with that person for their birthday.
+</p>
+<h2>Here's all the people that have birthdays coming up in a week:</h2>
+@listOfNames(names)
+@websiteReminder()
+}
+
+templ oneDay(names [] string) {
+<h1>Don't forget!</h1>
+<p>
+	You have some birthdays tomorrow! Make sure you have everything prepared. If not, just remember that there's a
+	birthday tomorrow, and at least text them or something.
+</p>
+<h2>Here's all the people that have birthdays tomorrow:</h2>
+@listOfNames(names)
+@websiteReminder()
+}
+
+templ dayOf(names []string) {
+<h1>Wish them well!</h1>
+<p>It's time to give gifts, or gift. If you procrastinated, that's ok, still at least wish them a happy birthdy!</p>
+<h2>All people that have a birthday today:</h2>
+@listOfNames(names)
+@websiteReminder()
+}
+
+templ listOfNames(names []string) {
+<ul>
+	for _, name := range names {
+	<li>{ name }</li>
+	}
+</ul>
+}
+
+templ websiteReminder() {
+<p>This emails comes from <a href="https://birthday-reminder-mrsun.fly.dev">birthday-reminder-mrsun.fly.dev</a></p>
+}

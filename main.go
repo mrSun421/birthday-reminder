@@ -9,6 +9,7 @@ import (
 	"os/signal"
 	"time"
 
+	"github.com/go-co-op/gocron/v2"
 	"github.com/gorilla/sessions"
 	"github.com/jackc/pgx/v5"
 	"github.com/markbates/goth"
@@ -43,6 +44,25 @@ func main() {
 		google.New(os.Getenv("GOOGLE_OAUTH_KEY"), os.Getenv("GOOGLE_OAUTH_SECRET"), fmt.Sprintf("%s/auth/callback?provider=google", os.Getenv("CURRENT_URL"))),
 	)
 
+	sch, err := gocron.NewScheduler()
+	if err != nil {
+		log.Printf("%v\n", err)
+		return
+	}
+	job, err := sch.NewJob(
+		gocron.DailyJob(1, gocron.NewAtTimes(gocron.NewAtTime(11, 59, 0))),
+		gocron.NewTask(
+			sendMail,
+		),
+	)
+
+	_ = job
+	if err != nil {
+		log.Printf("%v\n", err)
+		return
+	}
+	sch.Start()
+
 	http.HandleFunc("/", index)
 	http.HandleFunc("/auth/callback", oAuthCallback)
 	http.HandleFunc("/logout", logout)
@@ -59,6 +79,7 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
+
 	}()
 
 	stop := make(chan os.Signal, 1)
@@ -68,7 +89,13 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	err = server.Shutdown(ctx)
-	log.Printf("%v\n", err)
+	if err != nil {
+		log.Printf("%v\n", err)
+	}
+	err = sch.Shutdown()
+	if err != nil {
+		log.Printf("%v\n", err)
+	}
 	os.Exit(0)
 
 }
