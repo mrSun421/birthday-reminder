@@ -1,19 +1,32 @@
 package shared
 
 templ Layout() {
-	<!DOCTYPE html>
-	<html lang="en">
-		<head>
-			<meta charset="UTF-8"/>
-			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-			<script src="https://unpkg.com/htmx.org@1.9.10" integrity="sha384-D1Kt99CQMDuVetoL1lrYwg5t+9QdHe7NLX/SoJYkXDFfX37iInKRy5xLSi8nO7UC" crossorigin="anonymous"></script>
-			<title>Birthday Reminder</title>
-			<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css"/>
-		</head>
-		<body>
-			<div id="content" class="container p-5 content">
-				{ children... }
-			</div>
-		</body>
-	</html>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<script src="https://unpkg.com/htmx.org@1.9.10"
+		integrity="sha384-D1Kt99CQMDuVetoL1lrYwg5t+9QdHe7NLX/SoJYkXDFfX37iInKRy5xLSi8nO7UC"
+		crossorigin="anonymous"></script>
+	<title>Birthday Reminder</title>
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css" />
+</head>
+
+<body>
+	<div id="content" class="container p-5 content">
+		{ children... }
+	</div>
+</body>
+<footer class="footer">
+	<div class="content has-text-centered">
+		<p>
+			Birthday Reminder by Joshua Sun. Source on <a
+				href="https://github.com/mrSun421/birthday-reminder">Github</a>.
+		</p>
+	</div>
+</footer>
+
+</html>
 }
